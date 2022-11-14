@@ -1,19 +1,40 @@
 package lpnu.resources;
 
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import lpnu.dto.UserDTO;
+import lpnu.entity.User;
+import lpnu.service.UserService;
+import lpnu.service.impl.UserServiceImpl;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
-@RequestMapping("/res")
+@RequestMapping("/user")
 public class UserResource {
 
-    @GetMapping("/api")
-    public String rest(){
-        return "Uellp";
+    @Autowired
+    private UserServiceImpl userService ;
+
+    @GetMapping("/allFull")
+    public List<UserDTO> getAllUsers(){
+        return userService.getAllUsers();
     }
-    @GetMapping("/api2")
+
+    @GetMapping("/test")
     public String test(){
-        return "Uell";
+        return "Done";
     }
+
+    @GetMapping("/allBrief")
+    public List<UserDTO> getAllUsersBrief(){
+        return userService.getAllUsersBrief();
+    }
+
+    @PostMapping()
+    public UserDTO createUser(@RequestBody UserDTO userDTO){
+        return userService.createUser(userDTO);
+    }
+
 }
