@@ -15,7 +15,7 @@ import java.util.List;
 public class UserResource {
 
     @Autowired
-    private UserServiceImpl userService ;
+    private UserService userService ;
 
     @GetMapping("/allFull")
     public List<UserDTO> getAllUsers(){
@@ -32,9 +32,20 @@ public class UserResource {
         return userService.getAllUsersBrief();
     }
 
-    @PostMapping()
-    public UserDTO createUser(@RequestBody UserDTO userDTO){
+    @PostMapping("/test1")
+    public String createUser(){
+        return "Done";
+    }
+
+    @PostMapping("/create")
+    public UserDTO createUser(@RequestBody @Validated UserDTO userDTO){
+        int t = 0;
         return userService.createUser(userDTO);
+    }
+
+    @GetMapping("/{id}")
+    public UserDTO findById(@PathVariable long id){
+        return userService.findById(id);
     }
 
 }
