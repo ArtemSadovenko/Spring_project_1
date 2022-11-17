@@ -22,20 +22,20 @@ public class UserResource {
         return userService.getAllUsers();
     }
 
-    @GetMapping("/test")
-    public String test(){
-        return "Done";
-    }
-
     @GetMapping("/allBrief")
     public List<UserDTO> getAllUsersBrief(){
         return userService.getAllUsersBrief();
     }
 
-    @PostMapping("/test1")
-    public String createUser(){
-        return "Done";
-    }
+//    @PostMapping("/test1")
+//    public String createUser(){
+//        return "Done";
+//    }
+
+//@GetMapping("/test")
+//public String test(){
+//    return "Done";
+//}
 
     @PostMapping("/create")
     public UserDTO createUser(@RequestBody @Validated UserDTO userDTO){
@@ -46,6 +46,11 @@ public class UserResource {
     @GetMapping("/{id}")
     public UserDTO findById(@PathVariable long id){
         return userService.findById(id);
+    }
+
+    @PutMapping
+    public UserDTO updateUser(@RequestBody @Validated UserDTO userDTO){
+        return userService.updateUser(userDTO);
     }
 
 }

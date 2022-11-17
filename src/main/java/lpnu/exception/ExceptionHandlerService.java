@@ -15,7 +15,7 @@ public class ExceptionHandlerService {
     public ResponseEntity<Object> handleServiceException(final IrregularDate ex, final WebRequest request) {
         return ResponseEntity
                 .status(HttpStatus.valueOf(ex.getCode()))
-                .body(new IrregularDate(ex.getMassage(), ex.getCode()));
+                .body(new IrregularDateDTO(ex.getMassage(), ex.getCode()));
     }
 
     @ExceptionHandler(value = MethodArgumentNotValidException.class )
@@ -29,6 +29,6 @@ public class ExceptionHandlerService {
 
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
-                .body(new IrregularDate(messages, HttpStatus.BAD_REQUEST.value()));
+                .body(new IrregularDateDTO(messages, HttpStatus.BAD_REQUEST.value()));
     }
 }
