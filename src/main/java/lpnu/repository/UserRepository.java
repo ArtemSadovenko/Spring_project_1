@@ -1,20 +1,25 @@
 package lpnu.repository;
 
+import lpnu.dto.CryptoDTO;
+import lpnu.dto.StockDTO;
 import lpnu.entity.User;
 import lpnu.entity.enumeration.Status;
 import lpnu.entity.enumeration.UserRole;
 import lpnu.exception.IrregularDate;
+import lpnu.exception.RejectedPurchase;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Repository
 public class UserRepository {
     private List<User> users = new ArrayList<>();
     private long id = 0L;
     private LocalDate todayDate = LocalDate.now();
+    private double maxCustomerAmount = 10_000;
 
 
     public List<User> getAllUsers() {
@@ -89,5 +94,91 @@ public class UserRepository {
         }
 
         return saved;
+    }
+
+    public void addCrypto(CryptoDTO cryptoDTO, long userId){
+//        findById(userId);
+//        users = users.stream()
+//                .map(e -> {
+//                    if(e.getId() == userId){
+//                        if(e.getUserRole().equals(UserRole.CUSTOMER) && !(cryptoDTO.getAmount() > maxCustomerAmount)){
+//                            throw new RejectedPurchase("User status is not VIP");
+//                        }
+//                        if(cryptoDTO.getAmount() * cryptoDTO.getCost() > e.getUserBalance()){
+//                            throw new RejectedPurchase("User balance is not enough");
+//                        }
+//                        e.addCrypto(cryptoDTO);
+//                    }
+//                    return e;
+//                })
+//                .collect(Collectors.toList());
+//        findById(userId);
+        users = users.stream()
+                .map(e -> {
+                    if(e.getId() == userId){
+//                        if(e.getUserRole().equals(UserRole.CUSTOMER) && !(cryptoDTO.getAmount() > maxCustomerAmount)){
+//                            throw new RejectedPurchase("User status is not VIP");
+//                        }
+//                        if(cryptoDTO.getAmount() * cryptoDTO.getCost() > e.getUserBalance()){
+//                            throw new RejectedPurchase("User balance is not enough");
+//                        }
+                        e.addCrypto(cryptoDTO);
+                    }
+                    return e;
+                })
+                .collect(Collectors.toList());
+    }
+
+    public void validateCrypto(CryptoDTO cryptoDTO, long userId){
+        findById(userId);
+        users.stream()
+                .map(e -> {
+                    if(e.getId() == userId){
+                        if(e.getUserRole().equals(UserRole.CUSTOMER) && (cryptoDTO.getAmount() > maxCustomerAmount)){
+                            throw new RejectedPurchase("User status is not VIP");
+                        }
+                        if(cryptoDTO.getAmount() * cryptoDTO.getCost() > e.getUserBalance()){
+                            throw new RejectedPurchase("User balance is not enough");
+                        }
+                        //e.addCrypto(cryptoDTO);
+                    }
+                    return e;
+                })
+                .collect(Collectors.toList());
+    }
+
+    public void  addStock(StockDTO stockDTO, long userId){
+        users = users.stream()
+                .map(e -> {
+                    if(e.getId() == userId){
+//                        if(e.getUserRole().equals(UserRole.CUSTOMER) && !(stockDTO.getAmount() > maxCustomerAmount)){
+//                            throw new RejectedPurchase("User status is not VIP");
+//                        }
+//                        if(stockDTO.getAmount() * stockDTO.getCost() > e.getUserBalance()){
+//                            throw new RejectedPurchase("User balance is not enough");
+//                        }
+                        e.addStock(stockDTO);
+                    }
+                    return e;
+                })
+                .collect(Collectors.toList());
+    }
+
+    public void validateStock(StockDTO stockDTO, long userId){
+        findById(userId);
+        users.stream()
+                .map(e -> {
+                    if(e.getId() == userId){
+                        if(e.getUserRole().equals(UserRole.CUSTOMER) && (stockDTO.getAmount() > maxCustomerAmount)){
+                            throw new RejectedPurchase("User status is not VIP");
+                        }
+                        if(stockDTO.getAmount() * stockDTO.getCost() > e.getUserBalance()){
+                            throw new RejectedPurchase("User balance is not enough");
+                        }
+                        //e.addCrypto(cryptoDTO);
+                    }
+                    return e;
+                })
+                .collect(Collectors.toList());
     }
 }

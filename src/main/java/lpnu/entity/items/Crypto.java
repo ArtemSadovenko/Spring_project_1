@@ -25,5 +25,4 @@ public class Crypto {
 //        this.cost = capitalisation/amount;
 //    }
 
-
 }

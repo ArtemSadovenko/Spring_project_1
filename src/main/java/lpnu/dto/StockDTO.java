@@ -15,8 +15,6 @@ public class StockDTO {
     private long id;
     @NonNull
     private String title;
-    @NonNull
-    @PositiveOrZero
     private double cost;
     @NonNull
     @PositiveOrZero
@@ -24,4 +22,8 @@ public class StockDTO {
     @NonNull
     @PositiveOrZero
     private int amount;
+
+    public void genCost(){
+        this.cost = capitalisation/amount;
+    }
 }

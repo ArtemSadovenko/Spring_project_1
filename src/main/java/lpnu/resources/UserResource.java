@@ -1,13 +1,9 @@
 package lpnu.resources;
-
 import lpnu.dto.UserDTO;
-import lpnu.entity.User;
 import lpnu.service.UserService;
-import lpnu.service.impl.UserServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 
 @RestController
@@ -16,6 +12,9 @@ public class UserResource {
 
     @Autowired
     private UserService userService ;
+
+//    @Autowired
+//    private CryptoRepository cryptoService;
 
     @GetMapping("/allFull")
     public List<UserDTO> getAllUsers(){
@@ -26,16 +25,6 @@ public class UserResource {
     public List<UserDTO> getAllUsersBrief(){
         return userService.getAllUsersBrief();
     }
-
-//    @PostMapping("/test1")
-//    public String createUser(){
-//        return "Done";
-//    }
-
-//@GetMapping("/test")
-//public String test(){
-//    return "Done";
-//}
 
     @PostMapping("/create")
     public UserDTO createUser(@RequestBody @Validated UserDTO userDTO){
@@ -52,4 +41,10 @@ public class UserResource {
         return userService.updateUser(userDTO);
     }
 
+//    @GetMapping("/test")
+//    public List<CryptoDTO> getCrypto(){
+//        return cryptoService.getAllCrypto().stream()
+//                .map(CryptoMapper::toDTO)
+//                .collect(Collectors.toList());
+//    }
 }

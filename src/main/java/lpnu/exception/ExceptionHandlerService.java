@@ -31,4 +31,11 @@ public class ExceptionHandlerService {
                 .status(HttpStatus.BAD_REQUEST)
                 .body(new IrregularDateDTO(messages, HttpStatus.BAD_REQUEST.value()));
     }
+
+    @ExceptionHandler(value = RejectedPurchase.class)
+    public ResponseEntity<Object> handleRejectException(final RejectedPurchase ex, final WebRequest request){
+        return ResponseEntity
+                .status(HttpStatus.valueOf(ex.getCode()))
+                .body(new IrregularDateDTO(ex.getMassage(), ex.getCode()));
+    }
 }

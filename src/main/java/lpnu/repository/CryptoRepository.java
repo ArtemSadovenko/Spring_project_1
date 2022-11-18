@@ -3,11 +3,13 @@ package lpnu.repository;
 import lpnu.dto.CryptoDTO;
 import lpnu.entity.items.Crypto;
 import lpnu.exception.IrregularDate;
+import lpnu.exception.RejectedPurchase;
 import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Repository
 public class CryptoRepository {
@@ -51,7 +53,53 @@ public class CryptoRepository {
     //?to do
     public void validate(Crypto crypto){
         if(cryptos.stream().anyMatch(e -> e.getTitle().equals(crypto.getTitle()))){
-            throw new IrregularDate(crypto.getTitle() + " already exist", 400);
+            throw new IrregularDate("Crypto '" + crypto.getTitle() + "' already exist", 400);
         }
     }
+
+    public void buy(double amount, long id){
+//       findById(id);
+//
+//       cryptos = cryptos.stream()
+//               .map(e -> {
+//                   if(e.getId() == id ){
+//                       if(e.getAmount() < amount){
+//                           throw new RejectedPurchase("Not enough amount");
+//                       }
+//                       else {
+//                           e.setAmount(e.getAmount() - amount);
+//                       }
+//                   }
+//                   return e;
+//               })
+//               .collect(Collectors.toList());
+        cryptos = cryptos.stream()
+                .map(e -> {
+                    if(e.getId() == id ){
+                        e.setAmount(e.getAmount() - amount);
+                    }
+                    return e;
+                })
+                .collect(Collectors.toList());
+
+    }
+
+    public void validateBuy(double amount, long id){
+        findById(id);
+
+        cryptos.stream()
+                .map(e -> {
+                    if(e.getId() == id ){
+                        if(e.getAmount() < amount){
+                            throw new RejectedPurchase("Not enough amount");
+                        }
+//                        else {
+//                            e.setAmount(e.getAmount() - amount);
+//                        }
+                    }
+                    return e;
+                })
+                .collect(Collectors.toList());
+    }
+
 }
