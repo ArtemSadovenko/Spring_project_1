@@ -8,7 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Stock implements Item{
+public class Stock {
     private long id;
     private String title;
     private double cost;

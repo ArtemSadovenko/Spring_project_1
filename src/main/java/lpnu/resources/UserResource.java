@@ -39,7 +39,6 @@ public class UserResource {
 
     @PostMapping("/create")
     public UserDTO createUser(@RequestBody @Validated UserDTO userDTO){
-        int t = 0;
         return userService.createUser(userDTO);
     }
 
