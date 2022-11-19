@@ -13,7 +13,7 @@ public class OrderDTO {
     @NonNull
     private long userId;
     @NonNull
-    private long itemID;
+    private long itemId;
     @NonNull
     @PositiveOrZero
     private double amount;

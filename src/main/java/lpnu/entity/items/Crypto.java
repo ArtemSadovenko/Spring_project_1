@@ -25,4 +25,7 @@ public class Crypto {
 //        this.cost = capitalisation/amount;
 //    }
 
+    public void genCost(){
+        this.cost = capitalisation/amount;
+    }
 }

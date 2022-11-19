@@ -32,7 +32,7 @@ public class StockRepository {
     public Stock update(Stock stock) {
         Stock saved = findById(stock.getId());
 
-        validate(stock);
+        //validate(stock);
 
         saved.setTitle(stock.getTitle());
         saved.setCost(stock.getCost());
@@ -63,6 +63,8 @@ public class StockRepository {
 //                            throw new RejectedPurchase("Not enough amount");
 //                        }
                         e.setAmount(e.getAmount() - amount);
+                        e.setCapitalisation(e.getCapitalisation() + e.getCost()*amount);
+                        e.genCost();
 
                     }
                     return e;
@@ -86,6 +88,20 @@ public class StockRepository {
                     return e;
                 })
                 .collect(Collectors.toList());
+    }
+
+    public Stock sell(double amount, long id){
+        stocks = stocks.stream()
+                .map(e ->{
+                    if(e.getId() == id){
+                        e.setAmount(e.getAmount() + (int)amount);
+                        e.setCapitalisation(e.getCapitalisation() - e.getCost()*amount);
+                        e.genCost();
+                    }
+                    return e;
+                })
+                .collect(Collectors.toList());
+        return findById(id);
     }
 }
 

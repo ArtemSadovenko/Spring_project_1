@@ -27,15 +27,16 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public OrderDTO buyCrypto(OrderDTO orderDTO) {
-        CryptoDTO cryptoDTO = CryptoMapper.toDTO(cryptoRepository.findById(orderDTO.getItemID()));
+        CryptoDTO cryptoDTO = CryptoMapper.toDTO(cryptoRepository.findById(orderDTO.getItemId()));
         cryptoDTO.setAmount(orderDTO.getAmount());
 
-        cryptoRepository.validateBuy(orderDTO.getAmount(), orderDTO.getItemID());
+        cryptoRepository.validateBuy(orderDTO.getAmount(), orderDTO.getItemId());
         userRepository.validateCrypto(cryptoDTO, orderDTO.getUserId());
 
-        cryptoRepository.buy(orderDTO.getAmount(), orderDTO.getItemID());
         userRepository.addCrypto(cryptoDTO, orderDTO.getUserId());
+        cryptoRepository.buy(orderDTO.getAmount(), orderDTO.getItemId());
 
+        refreshCrypto(CryptoMapper.toDTO(cryptoRepository.findById(orderDTO.getItemId())));
         return orderDTO;
     }
 
@@ -44,32 +45,58 @@ public class OrderServiceImpl implements OrderService {
         if(orderDTO.getAmount() - (int)orderDTO.getAmount() >0){
             throw new RejectedPurchase("Stock amount must be int");
         }
-        StockDTO stockDTO = StockMapper.toDTO(stockRepository.findById(orderDTO.getItemID()));
+        StockDTO stockDTO = StockMapper.toDTO(stockRepository.findById(orderDTO.getItemId()));
         stockDTO.setAmount((int)orderDTO.getAmount());
 
-        stockRepository.validateBuy((int)orderDTO.getAmount(), orderDTO.getItemID());
+        stockRepository.validateBuy((int)orderDTO.getAmount(), orderDTO.getItemId());
         userRepository.validateStock(stockDTO, orderDTO.getUserId());
 
-        stockRepository.buy((int)orderDTO.getAmount(), orderDTO.getItemID());
         userRepository.addStock(stockDTO, orderDTO.getUserId());
+        stockRepository.buy((int)orderDTO.getAmount(), orderDTO.getItemId());
 
+        refreshCStock(StockMapper.toDTO(stockRepository.findById(orderDTO.getItemId())));
         return orderDTO;
     }
 
     @Override
     public OrderDTO sellCrypto(OrderDTO orderDTO) {
-        return null;
+        CryptoDTO cryptoDTO = CryptoMapper.toDTO(cryptoRepository.findById(orderDTO.getItemId()));
+        cryptoDTO.setAmount(orderDTO.getAmount());
+
+        userRepository.validateCryptoSell(cryptoDTO, orderDTO.getUserId());
+
+        cryptoRepository.sell(orderDTO.getAmount(), orderDTO.getItemId());
+        userRepository.sellCrypto(cryptoDTO, orderDTO.getUserId());
+
+        refreshCrypto(CryptoMapper.toDTO(cryptoRepository.findById(orderDTO.getItemId())));
+        return orderDTO;
     }
 
     @Override
     public OrderDTO sellStock(OrderDTO orderDTO) {
-        return null;
+        if(orderDTO.getAmount() - (int)orderDTO.getAmount() >0){
+            throw new RejectedPurchase("Stock amount must be int");
+        }
+
+        StockDTO stockDTO = StockMapper.toDTO(stockRepository.findById(orderDTO.getItemId()));
+        stockDTO.setAmount((int)orderDTO.getAmount());
+
+        userRepository.validateStockSell(stockDTO, orderDTO.getUserId());
+
+        stockRepository.sell(orderDTO.getAmount(), orderDTO.getItemId());
+        userRepository.sellStock(stockDTO, orderDTO.getUserId());
+
+        refreshCStock(StockMapper.toDTO(stockRepository.findById(orderDTO.getItemId())));
+        return orderDTO;
     }
 
     @Override
-    public void refresh(long itemId) {
-
+    public void refreshCrypto(CryptoDTO cryptoDTO) {
+        userRepository.refreshCrypto(cryptoDTO);
     }
 
-
+    @Override
+    public void refreshCStock(StockDTO stockDTO) {
+        userRepository.refreshStock(stockDTO);
+    }
 }

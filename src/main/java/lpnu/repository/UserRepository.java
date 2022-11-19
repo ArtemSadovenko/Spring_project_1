@@ -47,17 +47,16 @@ public class UserRepository {
 
     public User save(User user) {
 
-            validate(user);
-            ++id;
-            user.setId(id);
-            user.setStatus(Status.ACTIVE);
-            if (user.getUserRole() == null && user.getUserBalance() >= 100_000) {
-                user.setUserRole(UserRole.VIP_CUSTOMER);
-            }
-            else if(user.getUserRole() == null ){
-                user.setUserRole(UserRole.CUSTOMER);
-            }
-            users.add(user);
+        validate(user);
+        ++id;
+        user.setId(id);
+        user.setStatus(Status.ACTIVE);
+        if (user.getUserRole() == null && user.getUserBalance() >= 100_000) {
+            user.setUserRole(UserRole.VIP_CUSTOMER);
+        } else if (user.getUserRole() == null) {
+            user.setUserRole(UserRole.CUSTOMER);
+        }
+        users.add(user);
 
         return user;
     }
@@ -89,14 +88,14 @@ public class UserRepository {
         saved.setUserBalance(user.getUserBalance());
         saved.setBriefcase(user.getBriefcase());
 
-        if(saved.getUserBalance() >= 100_000 && saved.getUserRole()!= UserRole.ADMIN){
+        if (saved.getUserBalance() >= 100_000 && saved.getUserRole() != UserRole.ADMIN) {
             saved.setUserRole(UserRole.VIP_CUSTOMER);
         }
 
         return saved;
     }
 
-    public void addCrypto(CryptoDTO cryptoDTO, long userId){
+    public void addCrypto(CryptoDTO cryptoDTO, long userId) {
 //        findById(userId);
 //        users = users.stream()
 //                .map(e -> {
@@ -115,7 +114,7 @@ public class UserRepository {
 //        findById(userId);
         users = users.stream()
                 .map(e -> {
-                    if(e.getId() == userId){
+                    if (e.getId() == userId) {
 //                        if(e.getUserRole().equals(UserRole.CUSTOMER) && !(cryptoDTO.getAmount() > maxCustomerAmount)){
 //                            throw new RejectedPurchase("User status is not VIP");
 //                        }
@@ -129,28 +128,30 @@ public class UserRepository {
                 .collect(Collectors.toList());
     }
 
-    public void validateCrypto(CryptoDTO cryptoDTO, long userId){
+    public void validateCrypto(CryptoDTO cryptoDTO, long userId) {
         findById(userId);
         users.stream()
                 .map(e -> {
-                    if(e.getId() == userId){
-                        if(e.getUserRole().equals(UserRole.CUSTOMER) && (cryptoDTO.getAmount() > maxCustomerAmount)){
+                    if (e.getId() == userId) {
+                        if(e.getStatus() == Status.INACTIVE){
+                            throw new IrregularDate("User is banned");
+                        }
+                        if (e.getUserRole().equals(UserRole.CUSTOMER) && (cryptoDTO.getAmount() > maxCustomerAmount)) {
                             throw new RejectedPurchase("User status is not VIP");
                         }
-                        if(cryptoDTO.getAmount() * cryptoDTO.getCost() > e.getUserBalance()){
+                        if (cryptoDTO.getAmount() * cryptoDTO.getCost() > e.getUserBalance()) {
                             throw new RejectedPurchase("User balance is not enough");
                         }
-                        //e.addCrypto(cryptoDTO);
                     }
                     return e;
                 })
                 .collect(Collectors.toList());
     }
 
-    public void  addStock(StockDTO stockDTO, long userId){
+    public void addStock(StockDTO stockDTO, long userId) {
         users = users.stream()
                 .map(e -> {
-                    if(e.getId() == userId){
+                    if (e.getId() == userId) {
 //                        if(e.getUserRole().equals(UserRole.CUSTOMER) && !(stockDTO.getAmount() > maxCustomerAmount)){
 //                            throw new RejectedPurchase("User status is not VIP");
 //                        }
@@ -164,15 +165,18 @@ public class UserRepository {
                 .collect(Collectors.toList());
     }
 
-    public void validateStock(StockDTO stockDTO, long userId){
+    public void validateStock(StockDTO stockDTO, long userId) {
         findById(userId);
         users.stream()
                 .map(e -> {
-                    if(e.getId() == userId){
-                        if(e.getUserRole().equals(UserRole.CUSTOMER) && (stockDTO.getAmount() > maxCustomerAmount)){
+                    if (e.getId() == userId) {
+                        if(e.getStatus() == Status.INACTIVE){
+                            throw new IrregularDate("User is banned");
+                        }
+                        if (e.getUserRole().equals(UserRole.CUSTOMER) && (stockDTO.getAmount() > maxCustomerAmount)) {
                             throw new RejectedPurchase("User status is not VIP");
                         }
-                        if(stockDTO.getAmount() * stockDTO.getCost() > e.getUserBalance()){
+                        if (stockDTO.getAmount() * stockDTO.getCost() > e.getUserBalance()) {
                             throw new RejectedPurchase("User balance is not enough");
                         }
                         //e.addCrypto(cryptoDTO);
@@ -180,5 +184,95 @@ public class UserRepository {
                     return e;
                 })
                 .collect(Collectors.toList());
+    }
+
+    public CryptoDTO refreshCrypto(CryptoDTO cryptoDTO) {
+        users = users.stream()
+                .map(e -> {
+                    if (e.getBriefcase() != null) {
+                        e.refreshCrypto(cryptoDTO);
+                    }
+                    return e;
+                })
+                .collect(Collectors.toList());
+        return cryptoDTO;
+    }
+
+    public StockDTO refreshStock(StockDTO stockDTO){
+        users = users.stream()
+                .map(e -> {
+                    if(e.getBriefcase() != null){
+                        e.refreshStock(stockDTO);
+                    }
+                    return e;
+                })
+                .collect(Collectors.toList());
+        return stockDTO;
+    }
+
+    public void validateCryptoSell(CryptoDTO cryptoDTO, long userId) {
+        findById(userId);
+        users.stream()
+                .map(e -> {
+                    if (e.getId() == userId) {
+                        if(e.getStatus() == Status.INACTIVE){
+                            throw new IrregularDate("User is banned");
+                        }
+                        if (e.getUserRole().equals(UserRole.CUSTOMER) && (cryptoDTO.getAmount() > maxCustomerAmount)) {
+                            throw new RejectedPurchase("User status is not VIP");
+                        }
+                        if(e.getBriefcase() == null){
+                            throw new RejectedPurchase("There is nothing to sell");
+                        }
+                        e.getBriefcase().IsEnoughCrypto(cryptoDTO);
+                    }
+                    return e;
+                })
+                .collect(Collectors.toList());
+    }
+
+    public void validateStockSell(StockDTO stockDTO, long userId) {
+        findById(userId);
+        users.stream()
+                .map(e -> {
+                    if (e.getId() == userId) {
+                        if(e.getStatus() == Status.INACTIVE){
+                            throw new IrregularDate("User is banned");
+                        }
+                        if (e.getUserRole().equals(UserRole.CUSTOMER) && (stockDTO.getAmount() > maxCustomerAmount)) {
+                            throw new RejectedPurchase("User status is not VIP");
+                        }
+                        if(e.getBriefcase() == null){
+                            throw new RejectedPurchase("There is nothing to sell");
+                        }
+                        e.getBriefcase().IsEnoughStock(stockDTO);
+                    }
+                    return e;
+                })
+                .collect(Collectors.toList());
+    }
+
+    public CryptoDTO sellCrypto(CryptoDTO cryptoDTO, long userId){
+        users = users.stream()
+                .map(e -> {
+                    if(e.getId() == userId){
+                        e.sellCrypto(cryptoDTO);
+                    }
+                    return e;
+                })
+                .collect(Collectors.toList());
+        return cryptoDTO;
+    }
+
+    public StockDTO sellStock(StockDTO stockDTO, long userId){
+        users = users.stream()
+                .map(e -> {
+                    if(e.getId() == userId){
+                        e.sellStock(stockDTO);
+                    }
+                    return e;
+                })
+                .collect(Collectors.toList());
+        return stockDTO;
     }
 }

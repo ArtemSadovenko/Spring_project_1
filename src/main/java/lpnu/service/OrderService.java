@@ -1,6 +1,8 @@
 package lpnu.service;
 
+import lpnu.dto.CryptoDTO;
 import lpnu.dto.OrderDTO;
+import lpnu.dto.StockDTO;
 
 public interface OrderService {
     OrderDTO buyCrypto(OrderDTO orderDTO);
@@ -9,5 +11,6 @@ public interface OrderService {
     OrderDTO sellCrypto(OrderDTO orderDTO);
     OrderDTO sellStock(OrderDTO orderDTO);
 
-    void refresh(long itemId);
+    void refreshCrypto(CryptoDTO cryptoDTO);
+    void refreshCStock(StockDTO stockDTO);
 }

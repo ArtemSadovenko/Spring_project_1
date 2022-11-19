@@ -14,4 +14,8 @@ public class Stock {
     private double cost;
     private double capitalisation;
     private int amount;
+
+    public void genCost(){
+        this.cost = capitalisation/amount;
+    }
 }

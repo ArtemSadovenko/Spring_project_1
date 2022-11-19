@@ -16,16 +16,27 @@ public class OrderResource {
     @Autowired
     OrderService orderService;
 
-    @PostMapping("/crypto")
+    @PostMapping("/crypto/buy")
     public OrderDTO buyCrypto(@RequestBody @Validated OrderDTO orderDTO){
         orderService.buyCrypto(orderDTO);
         return orderDTO;
     }
 
-    @PostMapping("/stock")
+    @PostMapping("/stock/buy")
     public OrderDTO buyStock(@RequestBody @Validated OrderDTO orderDTO){
         orderService.buyStock(orderDTO);
         return orderDTO;
     }
 
+    @PostMapping("/crypto/sell")
+    public OrderDTO sellCrypto(@RequestBody @Validated OrderDTO orderDTO){
+        orderService.sellCrypto(orderDTO);
+        return orderDTO;
+    }
+
+    @PostMapping("/stock/sell")
+    public OrderDTO sellStock(@RequestBody @Validated OrderDTO orderDTO){
+        orderService.sellStock(orderDTO);
+        return orderDTO;
+    }
 }

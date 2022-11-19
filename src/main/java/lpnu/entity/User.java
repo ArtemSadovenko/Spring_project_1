@@ -8,6 +8,8 @@ import lpnu.dto.StockDTO;
 import lpnu.entity.enumeration.Status;
 import lpnu.entity.enumeration.UserRole;
 import lpnu.entity.items.Crypto;
+import lpnu.mapper.CryptoMapper;
+import lpnu.mapper.StockMapper;
 
 import java.time.LocalDate;
 
@@ -30,6 +32,7 @@ public class User {
             briefcase = new Briefcase();
         }
         briefcase.addCrypto(cryptoDTO);
+        userBalance -= cryptoDTO.getCost()*cryptoDTO.getAmount();
         return cryptoDTO;
     }
 
@@ -38,6 +41,31 @@ public class User {
             briefcase = new Briefcase();
         }
         briefcase.addStock(stockDTO);
+        userBalance -= stockDTO.getAmount() * stockDTO.getCost();
+        return stockDTO;
+    }
+
+    public CryptoDTO refreshCrypto(CryptoDTO cryptoDTO){
+
+        briefcase.refreshCrypto(CryptoMapper.toEntity(cryptoDTO));
+        return cryptoDTO;
+    }
+
+    public StockDTO refreshStock(StockDTO stockDTO){
+
+        briefcase.refreshStock(StockMapper.toEntity(stockDTO));
+        return stockDTO;
+    }
+
+    public CryptoDTO sellCrypto(CryptoDTO cryptoDTO){
+        briefcase.sellCrypto(cryptoDTO);
+        userBalance += cryptoDTO.getAmount() * cryptoDTO.getCost();
+        return cryptoDTO;
+    }
+
+    public StockDTO sellStock(StockDTO stockDTO){
+        briefcase.sellStock(stockDTO);
+        userBalance += stockDTO.getAmount()*stockDTO.getCost();
         return stockDTO;
     }
 }

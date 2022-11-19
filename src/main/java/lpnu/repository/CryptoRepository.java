@@ -29,7 +29,7 @@ public class CryptoRepository {
     public Crypto update(Crypto crypto){
         Crypto saved = findById(crypto.getId());
 
-        validate(crypto);
+        //validate(crypto);
 
         saved.setTitle(crypto.getTitle());
         saved.setCost(crypto.getCost());
@@ -77,6 +77,8 @@ public class CryptoRepository {
                 .map(e -> {
                     if(e.getId() == id ){
                         e.setAmount(e.getAmount() - amount);
+                        e.setCapitalisation(e.getCapitalisation() + e.getCost()*amount);
+                        e.genCost();
                     }
                     return e;
                 })
@@ -100,6 +102,20 @@ public class CryptoRepository {
                     return e;
                 })
                 .collect(Collectors.toList());
+    }
+
+    public Crypto sell(double amount, long id){
+        cryptos = cryptos.stream()
+                .map(e ->{
+                    if(e.getId() == id){
+                        e.setAmount(e.getAmount() + amount);
+                        e.setCapitalisation(e.getCapitalisation() - e.getCost()*amount);
+                        e.genCost();
+                    }
+                    return e;
+                })
+                .collect(Collectors.toList());
+        return findById(id);
     }
 
 }
