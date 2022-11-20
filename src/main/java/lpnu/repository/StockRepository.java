@@ -1,11 +1,19 @@
 package lpnu.repository;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import lpnu.entity.items.Crypto;
 import lpnu.entity.items.Stock;
 import lpnu.exception.IrregularDate;
 import lpnu.exception.RejectedPurchase;
+import lpnu.util.JacksonUtil;
 import org.springframework.stereotype.Repository;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -103,5 +111,45 @@ public class StockRepository {
                 .collect(Collectors.toList());
         return findById(id);
     }
+
+
+
+    @PostConstruct
+    public void init(){
+
+        final Path file = Paths.get("stock.txt");
+        try {
+            final String savedStocksAsString = Files.readString(file, StandardCharsets.UTF_16);
+            stocks = JacksonUtil.deserialize(savedStocksAsString, new TypeReference<List<Stock>>() {});
+
+
+            if (stocks == null) {
+                stocks = new ArrayList<>();
+                return;
+            }
+
+            this.id = stocks.stream().mapToLong(Stock::getId).max().orElse(0);
+
+
+
+        } catch (final Exception e){
+            System.out.println("We have an issue");
+            stocks = new ArrayList<>();
+        }
+
+    }
+
+
+    @PreDestroy
+    public void preDestroy(){
+        final Path file = Paths.get("stock.txt");
+
+        try {
+            Files.writeString(file, JacksonUtil.serialize(stocks), StandardCharsets.UTF_16);
+        } catch (final Exception e){
+            System.out.println("We have an issue");
+        }
+    }
+
 }
 

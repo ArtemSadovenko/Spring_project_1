@@ -1,11 +1,20 @@
 package lpnu.repository;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import lpnu.dto.CryptoDTO;
+import lpnu.entity.User;
 import lpnu.entity.items.Crypto;
 import lpnu.exception.IrregularDate;
 import lpnu.exception.RejectedPurchase;
+import lpnu.util.JacksonUtil;
 import org.springframework.stereotype.Repository;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -118,4 +127,43 @@ public class CryptoRepository {
         return findById(id);
     }
 
+
+
+
+    @PostConstruct
+    public void init(){
+
+        final Path file = Paths.get("crypto.txt");
+        try {
+            final String savedCryptosAsString = Files.readString(file, StandardCharsets.UTF_16);
+            cryptos = JacksonUtil.deserialize(savedCryptosAsString, new TypeReference<List<Crypto>>() {});
+
+
+            if (cryptos == null) {
+                cryptos = new ArrayList<>();
+                return;
+            }
+
+            this.id = cryptos.stream().mapToLong(Crypto::getId).max().orElse(0);
+
+
+
+        } catch (final Exception e){
+            System.out.println("We have an issue");
+            cryptos = new ArrayList<>();
+        }
+
+    }
+
+
+    @PreDestroy
+    public void preDestroy(){
+        final Path file = Paths.get("crypto.txt");
+
+        try {
+            Files.writeString(file, JacksonUtil.serialize(cryptos), StandardCharsets.UTF_16);
+        } catch (final Exception e){
+            System.out.println("We have an issue");
+        }
+    }
 }

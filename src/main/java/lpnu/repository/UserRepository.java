@@ -1,25 +1,36 @@
 package lpnu.repository;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import lpnu.dto.CryptoDTO;
 import lpnu.dto.StockDTO;
+import lpnu.dto.UserDTO;
 import lpnu.entity.User;
 import lpnu.entity.enumeration.Status;
 import lpnu.entity.enumeration.UserRole;
 import lpnu.exception.IrregularDate;
 import lpnu.exception.RejectedPurchase;
+import lpnu.mapper.UserMapper;
+import lpnu.util.JacksonUtil;
 import org.springframework.stereotype.Repository;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+//import com.fasterxml.jackson.datatype;//jackson-datatype-jsr310;
 
 @Repository
 public class UserRepository {
     private List<User> users = new ArrayList<>();
     private long id = 0L;
-    private LocalDate todayDate = LocalDate.now();
-    private double maxCustomerAmount = 10_000;
+    private final LocalDate todayDate = LocalDate.now();
+    private final double maxCustomerAmount = 10_000;
 
 
     public List<User> getAllUsers() {
@@ -30,6 +41,36 @@ public class UserRepository {
 //        users.add(user);
 
         return new ArrayList<>(users);
+    }
+
+    public UserDTO delete(long id){
+        final UserDTO userDTO = UserMapper.toFullDTO(findById(id));
+
+        users = users.stream()
+                .filter(e -> (e.getId() != id))
+                .collect(Collectors.toList());
+
+        return userDTO;
+    }
+
+    public void ban(long id){
+        users = users.stream()
+                .peek(e ->{
+                    if(e.getId() == id){
+                        e.setStatus(Status.INACTIVE);
+                    }
+                })
+                .collect(Collectors.toList());
+    }
+
+    public void unban(long id){
+        users = users.stream()
+                .peek(e ->{
+                    if(e.getId() == id){
+                        e.setStatus(Status.ACTIVE);
+                    }
+                })
+                .collect(Collectors.toList());
     }
 
 //    public ResponseEntity save(User user){
@@ -274,5 +315,44 @@ public class UserRepository {
                 })
                 .collect(Collectors.toList());
         return stockDTO;
+    }
+
+
+
+    @PostConstruct
+    public void init(){
+
+        final Path file = Paths.get("users.txt");
+        try {
+            final String savedUsersAsString = Files.readString(file, StandardCharsets.UTF_16);
+            users = JacksonUtil.deserialize(savedUsersAsString, new TypeReference<List<User>>() {});
+
+
+            if (users == null) {
+                users = new ArrayList<>();
+                return;
+            }
+
+            this.id = users.stream().mapToLong(User::getId).max().orElse(0);
+
+
+
+        } catch (final Exception e){
+            System.out.println("We have an issue");
+            users = new ArrayList<>();
+        }
+
+    }
+
+
+    @PreDestroy
+    public void preDestroy(){
+        final Path file = Paths.get("users.txt");
+
+        try {
+            Files.writeString(file, JacksonUtil.serialize(users), StandardCharsets.UTF_16);
+        } catch (final Exception e){
+            System.out.println("We have an issue");
+        }
     }
 }

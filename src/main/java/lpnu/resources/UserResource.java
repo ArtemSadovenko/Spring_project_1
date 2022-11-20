@@ -41,6 +41,20 @@ public class UserResource {
         return userService.updateUser(userDTO);
     }
 
+    @PostMapping("/ban/{adminId}/{userId}")
+    public UserDTO banUser(@PathVariable long adminId, @PathVariable long userId){
+        return userService.banUser(adminId, userId);
+    }
+
+    @PostMapping("/unban/{adminId}/{userId}")
+    public UserDTO unbanUser(@PathVariable long adminId, @PathVariable long userId){
+        return userService.unbanUser(adminId, userId);
+    }
+
+    @PostMapping("/del/{id}")
+    public UserDTO delete(@PathVariable long id){
+        return userService.deleteUser(id);
+    }
 //    @GetMapping("/test")
 //    public List<CryptoDTO> getCrypto(){
 //        return cryptoService.getAllCrypto().stream()
